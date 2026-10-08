@@ -1,0 +1,59 @@
+# The relay publishes no ports. cloudflared reaches it by service name on the
+# private network and dials out to Cloudflare, so nothing inbound is opened.
+
+services:
+  relay:
+    image: spot-thermal-relay:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - tunnel
+    environment:
+      RTSP_URL: "${RTSP_URL:-rtsp://192.168.80.102/avc}"
+      TARGET_FPS: "${TARGET_FPS:-10}"
+      JPEG_QUALITY: "${JPEG_QUALITY:-60}"
+      MAX_WIDTH: "${MAX_WIDTH:-480}"
+      # 21000-22000 is CORE I/O's payload port range (21443 is reserved).
+      LISTEN_HOST: "0.0.0.0"
+      LISTEN_PORT: "21000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:21000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: journald
+      options:
+        tag: "spot-thermal-relay"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    networks:
+      - tunnel
+    depends_on:
+      - relay
+    # Remote-managed tunnel: the hostname and its route to http://relay:21000
+    # are configured in the Cloudflare dashboard.
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: "${TUNNEL_TOKEN:?TUNNEL_TOKEN is required - see README}"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: journald
+      options:
+        tag: "spot-thermal-tunnel"
+
+networks:
+  tunnel:
+    driver: bridge

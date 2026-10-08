@@ -1,0 +1,10 @@
+{
+  "extension_name": "spot_thermal_relay",
+  "description": "Relays an RTSP thermal camera as MJPEG, exposed via Cloudflare tunnel.",
+  "version": "1.0.0",
+  "icon": "icon.png",
+  "images": [
+    "images.tgz"
+  ],
+  "extension_target": "spot"
+}

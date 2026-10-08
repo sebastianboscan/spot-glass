@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--
+  Sized for the Meta Ray-Ban Display (600x600). The display is additive, so
+  black is transparent: no dark chrome, only bright text. MJPEG support on the
+  device is undocumented, so if the stream hasn't painted after 4s the page
+  falls back to polling /snapshot. URLs are relative so the page works with or
+  without the path prefix.
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="{{label}} feed">
+  <meta name="mrbd-web-app-capable" content="yes">
+  <meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 600px; height: 600px; background: #000; }
+    #feed { width: 600px; height: 600px; object-fit: contain; display: block; }
+    #msg {
+      position: absolute; inset: 0; box-sizing: border-box; padding: 0 40px;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      font: 24px system-ui, sans-serif; color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <img id="feed" alt="">
+  <div id="msg">Connecting to {{label}}&hellip;</div>
+  <script>
+    var feed = document.getElementById('feed');
+    var msg = document.getElementById('msg');
+    var painted = false;
+    var polling = false;
+
+    function shown() {
+      painted = true;
+      msg.style.display = 'none';
+    }
+
+    function poll() {
+      var next = new Image();
+      next.onload = function () {
+        feed.src = next.src;
+        shown();
+        setTimeout(poll, {{interval}});
+      };
+      next.onerror = function () { setTimeout(poll, 1000); };
+      next.src = 'snapshot?t=' + Date.now();
+    }
+
+    function startPolling() {
+      if (polling) return;
+      polling = true;
+      poll();
+    }
+
+    feed.addEventListener('load', shown);
+    feed.addEventListener('error', startPolling);
+    feed.src = 'stream';
+    setTimeout(function () { if (!painted) startPolling(); }, 4000);
+  </script>
+</body>
+</html>

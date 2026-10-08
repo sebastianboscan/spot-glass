@@ -129,3 +129,7 @@ To add a camera, write a class with `label`, `poll_interval`, `connect()`,
 > A tunnel hostname is public: anyone with the URL can watch the feed. Put it
 > behind [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/applications/)
 > before deploying for real.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).

@@ -4,6 +4,11 @@ Streams Boston Dynamics Spot camera feeds to the browser as MJPEG, optionally
 through a Cloudflare tunnel. The viewer page targets the Meta Ray-Ban Display
 (600×600).
 
+<p align="center">
+  <img src="docs/demo.gif" height="320" alt="Thermal camera feed overlaid in the Meta Ray-Ban Display">
+  <img src="docs/demo.jpg" height="320" alt="Thermal feed in the Ray-Ban Display, with Spot in the background">
+</p>
+
 Two sources are supported:
 
 - **`spot`**: Spot's body cameras, read through the robot's authenticated
